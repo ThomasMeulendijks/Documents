@@ -1,0 +1,203 @@
+---
+title: 	Arch install guide
+#output: pdf_document
+---
+
+
+# Terminology
+
+Vim		,	"A text editor, you can use yours"
+
+{drive_name}	,	"The name of the hard drive as shown by the lsblk command"
+
+{partition_name},	"consists of the {drive_name} followed by a ('p') +number, see lsblk"
+
+
+# before start
+
+* arch USB
+* internet cable
+
+
+# Start
+
+Check internet with
+
+```
+ping duckduckgo.com
+```
+
+
+Set Clock with
+
+```
+timedatectl set-ntp true
+```
+
+## Partitioning the drive
+
+The drive should be partitions as followed for and ideal setup
+
+
+```
+/Boot 	200M 	ext4
+/		25G		ext4
+/home	rest	ext4
+[SWAP]	1,5*RAM size
+```
+
+
+
+To do this we will use fdisk
+```
+fdisk /dev/{drive_name}
+```
+*NOTE: replace {drive_name} with your own hard drive name, this can be found with the lsblk command*
+
+
+Make the file systems
+
+For ext4 we use:
+```
+mkfs.ext4 /dev/{partition_name}
+```
+
+For the swap partition:
+```
+mkswap /dev/{partition_name}
+swapon /dev/{partition_name}
+```
+
+## Mounting the partitions
+
+```
+mount {root_pratition_name} /mnt
+mkdir /mnt/home
+mkdir /mnt/boot
+mount {boot_partitions_name} /mnt/boot
+mount {homo_partition_name} /mnt/home
+```
+
+## Installing Arch
+
+```
+pacstrap /mnt base base-devel vim
+```
+
+## Configuring Arch
+
+
+### Generate the fstab
+
+```
+genfstab -U /mnt >> /mnt/etc/fstab
+```
+
+### Change root to the new install
+
+```
+arch-chroot /mnt
+```
+
+It is recommended that you check your fstab at this point
+```
+vim /etc/fstab
+```
+If anything is wrong with it user the 'exit' command and clean the file, then repeat the gen fstab step
+
+### Install NetworkManager and grub
+
+```
+pacman -S networkmanager
+systemctl enable NetworkManager
+pacman -S grub
+grub-install /dev/{drive_name}
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+### Set the root user password
+```
+passwd
+```
+
+### Setting locale
+
+
+Un-comment corresponding lines in the locale.gen file
+```
+vim /etc/locale.gen
+locale-gen
+```
+
+Set the LANG variable in the following file
+```
+vim /etc/locale.conf
+```
+*Ex. LANG=en_US.UTF-8*
+
+Set the time zone
+```
+ls -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
+```
+
+### Setting the host name
+
+Set the host name (the name after the @ in the console)
+**This should be a single word**
+```
+vim /ect/hostname
+```
+
+## Finishing up
+
+We are done configuring arch we can now exit the installation and unmount the drives
+
+```
+exit
+umount -R /mnt
+reboot
+```
+
+**congrats you sould now have a fresh arch install and a succesfull boot**
+
+
+# After a minimal install
+
+*Note that at this point you could use larbs see larbs.xyz*
+
+## Users and Groups
+
+Add a User
+
+
+```
+useradd -m -g wheel {name}
+```
+-m : creates the /home/{name} dir
+-G : addes the group wheel to the user
+
+Set a password
+
+```
+passwd {name}
+```
+
+Extras:
+
+```
+useradd, userdel ,groupadd, groupdel ect.
+```
+
+### Sudo Access
+
+```
+vim /etc/sudoers
+```
+
+## DM /WM Graphical environment setup
+
+
+
+
+
+
