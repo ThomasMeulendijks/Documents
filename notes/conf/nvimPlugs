@@ -1,0 +1,9 @@
+nvim plugs
+
+denite + ag? = fuzzy
+Defx = file explorer
+tagbar = tags
+neoformat +uncrustify or astyle = formate
+javacomplete2
+deoplete.nvim
+neomake
